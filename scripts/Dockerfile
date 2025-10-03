@@ -7,8 +7,9 @@ ARG SHA=""
 WORKDIR /
 RUN set -xe && \
     apk add --no-cache --virtual .build-tools git g++ build-base linux-headers cmake python3 && \
-    apk add --no-cache --virtual .build-deps curl-dev rapidjson-dev pcre2-dev yaml-cpp-dev && \
-    git clone https://github.com/ftk/quickjspp --depth=1 && \
+    apk add --no-cache --virtual .build-deps curl-dev rapidjson-dev pcre2-dev yaml-cpp-dev 
+
+RUN git clone https://github.com/ftk/quickjspp --depth=1 && \
     cd quickjspp && \
     git submodule update --init && \
     cmake -DCMAKE_BUILD_TYPE=Release . && \
@@ -33,15 +34,17 @@ RUN set -xe && \
     git clone https://github.com/ToruNiina/toml11 --branch="v4.3.0" --depth=1 && \
     cd toml11 && \
     cmake -DCMAKE_CXX_STANDARD=11 . && \
-    make install -j $THREADS && \
-    cd .. && \
-    git clone https://github.com/tindy2013/subconverter --depth=1 && \
-    cd subconverter && \
-    [ -n "$SHA" ] && sed -i 's/\(v[0-9]\.[0-9]\.[0-9]\)/\1-'"$SHA"'/' src/version.h;\
+    make install -j $THREADS
+
+WORKDIR /subconverter
+COPY . /subconverter/
+
+RUN [ -n "$SHA" ] && sed -i 's/\(v[0-9]\.[0-9]\.[0-9]\)/\1-'"$SHA"'/' src/version.h; \
+    sed -i '/JS_TAG_BIG_DECIMAL:/d; /JS_TAG_BIG_FLOAT:/d' include/quickjspp.hpp && \
     python3 -m ensurepip && \
     python3 -m pip install gitpython && \
-    python3 scripts/update_rules.py -c scripts/rules_config.conf && \
-    cmake -DCMAKE_BUILD_TYPE=Release . && \
+    python3 scripts/update_rules.py -c scripts/rules_config.conf
+RUN cmake -DCMAKE_BUILD_TYPE=Release . && \
     make -j $THREADS
 
 # build final image
