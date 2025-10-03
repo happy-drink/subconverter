@@ -23,7 +23,7 @@ struct Settings
     RegexMatchConfigs streamNodeRules, timeNodeRules;
     std::vector<RulesetContent> rulesetsContent;
     std::string listenAddress = "127.0.0.1", defaultUrls, insertUrls, managedConfigPrefix;
-    int listenPort = 25500, maxPendingConns = 10, maxConcurThreads = 4;
+    int listenPort = 25500, maxPendingConns = 256, maxConcurThreads = 128;
     bool prependInsert = true, skipFailedLinks = false;
     bool APIMode = true, writeManagedConfig = false, enableRuleGen = true, updateRulesetOnRequest = false, overwriteOriginalRules = true;
     bool printDbgInfo = false, CFWChildProcess = false, appendUserinfo = true, asyncFetchRuleset = false, surgeResolveHostname = true;
